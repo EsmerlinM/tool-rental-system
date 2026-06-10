@@ -23,8 +23,8 @@ It handles tool availability, rental registration, returns, late fees, and damag
 
 ## Project Status
 
-🚧 In development – University project
+In development – University project
 
 ## Author
 
-- GitHub: [@TU_USUARIO](https://github.com/TU_USUARIO)
+- GitHub: EsmerlinM (https://github.com/EsmerlinM)
