@@ -23,7 +23,7 @@ It handles tool availability, rental registration, returns, late fees, and damag
 
 ## Project Status
 
-In development – University project
+ In development – University project
 
 ## Author
 
