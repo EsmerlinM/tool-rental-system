@@ -31,6 +31,14 @@ In development – University project
 
 
 
+## Requisitos previos
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- [SQL Server](https://www.microsoft.com/sql-server) o SQL Server LocalDB
+- [Visual Studio 2026](https://visualstudio.microsoft.com/)
+- Git instalado y configurado
+
+
 \## Branch Strategy
 
 
