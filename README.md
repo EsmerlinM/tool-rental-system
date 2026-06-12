@@ -39,7 +39,7 @@ In development – University project
 - Git instalado y configurado
 
 
-\## Branch Strategy
+## Branch Strategy
 
 
 
@@ -47,7 +47,7 @@ This project follows a structured branching model to keep the codebase organized
 
 
 
-\### Branch Types
+### Branch Types
 
 
 
@@ -63,7 +63,7 @@ This project follows a structured branching model to keep the codebase organized
 
 
 
-\### Workflow
+### Workflow
 
 
 
@@ -81,13 +81,31 @@ This project follows a structured branching model to keep the codebase organized
 
 
 
-\### Naming Convention Examples
+### Naming Convention Examples
 
 
 
-\- `feature/2-branch-strategy`
+- `feature/2-branch-strategy`
 
-\- `feature/3-folder-structure`
+- `feature/3-folder-structure`
 
-\- `feature/4-readme-documentation`
+- `feature/4-readme-documentation`
 
+
+##  Estado del Proyecto - Milestone 1
+
+** MILESTONE 1 COMPLETADO - LISTO PARA ENTREGA**
+
+| Issue | Descripción |
+|-------|-------------|
+| #1 | Create ASP.NET Web API project |
+| #2 | Configure branch strategy |
+| #3 | Create initial folder structure |
+| #4 | Write initial project documentation |
+| #5 | Plan entity structure |
+
+**Fecha de entrega:** 11 de junio de 2026
+
+**Rama principal:** `Develop`
+
+**Enlace al repositorio:** https://github.com/EsmerlinM/tool-rental-system
