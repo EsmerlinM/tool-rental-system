@@ -1,6 +1,6 @@
-﻿namespace ToolRentalSystem.Models
+﻿namespace ToolRentalSystem.DTOs
 {
-    public class Customer
+    public class CustomerDto
     {
         public int Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
