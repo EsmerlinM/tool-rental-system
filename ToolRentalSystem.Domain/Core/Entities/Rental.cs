@@ -1,8 +1,7 @@
 namespace ToolRentalSystem.Domain.Core.Entities
 {
-    public class Rental
+    public class Rental : BaseEntity
     {
-        public int Id { get; set; }
         public int CustomerId { get; set; }
         public int ToolId { get; set; }
         public DateTime StartDate { get; set; }
