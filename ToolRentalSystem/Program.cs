@@ -1,20 +1,35 @@
 using Microsoft.EntityFrameworkCore;
+using ToolRentalSystem.Application.Contract;
+using ToolRentalSystem.Application.Services;
 using ToolRentalSystem.Data;
+using ToolRentalSystem.Domain.Core.Interfaces;
+using ToolRentalSystem.Infrastructure.Context;
+using ToolRentalSystem.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Register AppDbContext with SQL Server
-builder.Services.AddDbContext<AppDbContext>(options =>
+
+builder.Services.AddDbContext<ToolRentalSystem.Data.AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddDbContext<ToolRentalSystem.Infrastructure.Context.AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
+builder.Services.AddScoped<IToolService, ToolService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IRentalService, RentalService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
