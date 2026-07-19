@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ToolRentalSystem.Application\ToolRentalSystem.Application.csproj" />
     <ProjectReference Include="..\ToolRentalSystem.Domain\ToolRentalSystem.Domain.csproj" />
     <ProjectReference Include="..\ToolRentalSystem.Infrastructure\ToolRentalSystem.Infrastructure.csproj" />
   </ItemGroup>
