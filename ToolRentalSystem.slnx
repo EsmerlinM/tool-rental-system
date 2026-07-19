@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="ToolRentalSystem.Domain/ToolRentalSystem.Domain.csproj" Id="86fec7b7-6386-4ec3-99dd-22a8e55f3d70" />
+  <Project Path="ToolRentalSystem.Infrastructure/ToolRentalSystem.Infrastructure.csproj" Id="552b4ec8-6679-4608-a042-388b25b57dc9" />
   <Project Path="ToolRentalSystem/ToolRentalSystem.csproj" />
 </Solution>
