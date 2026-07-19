@@ -1,14 +1,12 @@
-namespace ToolRentalSystem.Models
+﻿namespace ToolRentalSystem.DTOs
 {
-    public class Rental
+    public class RentalDto
     {
         public int Id { get; set; }
         public int CustomerId { get; set; }
         public int ToolId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public bool IsReturned { get; set; } = false;
-        public Customer? Customer { get; set; }
-        public Tool? Tool { get; set; }
+        public bool IsReturned { get; set; }
     }
 }
