@@ -1,0 +1,103 @@
+﻿@page "/tools/new"
+@page "/tools/edit/{Id:int}"
+@using ToolRentalSystem.Web.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>@(EsEdicion ? "Editar Herramienta" : "Nueva Herramienta")</PageTitle>
+
+<h3>@(EsEdicion ? "Editar Herramienta" : "Nueva Herramienta")</h3>
+
+@if (cargando)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <EditForm Model="herramienta" OnValidSubmit="GuardarHerramienta">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <InputText class="form-control" @bind-Value="herramienta.Name" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <InputText class="form-control" @bind-Value="herramienta.Description" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Precio por día</label>
+            <InputNumber class="form-control" @bind-Value="herramienta.PricePerDay" />
+        </div>
+
+        <div class="mb-3 form-check">
+            <InputCheckbox class="form-check-input" @bind-Value="herramienta.IsAvailable" id="disponible" />
+            <label class="form-check-label" for="disponible">Disponible</label>
+        </div>
+
+        @if (!string.IsNullOrEmpty(mensajeError))
+        {
+            <div class="alert alert-danger">@mensajeError</div>
+        }
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private Tool herramienta = new Tool { IsAvailable = true };
+    private string? mensajeError;
+    private bool cargando = false;
+
+    private bool EsEdicion => Id.HasValue;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (EsEdicion)
+        {
+            cargando = true;
+            var resultado = await Http.GetFromJsonAsync<Tool>($"api/Tools/{Id}");
+            if (resultado != null)
+            {
+                herramienta = resultado;
+            }
+            cargando = false;
+        }
+    }
+
+    private async Task GuardarHerramienta()
+    {
+        mensajeError = null;
+        HttpResponseMessage response;
+
+        if (EsEdicion)
+        {
+            response = await Http.PutAsJsonAsync($"api/Tools/{Id}", herramienta);
+        }
+        else
+        {
+            response = await Http.PostAsJsonAsync("api/Tools", herramienta);
+        }
+
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/tools");
+        }
+        else
+        {
+            mensajeError = $"Error al guardar: {response.StatusCode}";
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/tools");
+    }
+}

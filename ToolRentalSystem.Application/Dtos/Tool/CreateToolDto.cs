@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ToolRentalSystem.Application.Dtos.Tool
 {
+
     public class CreateToolDto
     {
         [Required(ErrorMessage = "Name is required")]
@@ -13,6 +14,8 @@ namespace ToolRentalSystem.Application.Dtos.Tool
 
         [Required(ErrorMessage = "Price per day is required")]
         [Range(0.01, 10000, ErrorMessage = "Price must be between 0.01 and 10000")]
+        
         public decimal PricePerDay { get; set; }
+        public bool IsAvailable { get; set; }
     }
 }

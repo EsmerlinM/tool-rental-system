@@ -6,11 +6,22 @@ using ToolRentalSystem.Domain.Core.Interfaces;
 using ToolRentalSystem.Infrastructure.Context;
 using ToolRentalSystem.Infrastructure.Repositories;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient", policy =>
+    {
+        policy.WithOrigins("https://localhost:7189", "http://localhost:5068")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 
 builder.Services.AddDbContext<ToolRentalSystem.Data.AppDbContext>(options =>
@@ -30,6 +41,7 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 var app = builder.Build();
 
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -37,6 +49,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowBlazorClient");
+
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
