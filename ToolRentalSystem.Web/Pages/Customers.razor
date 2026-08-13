@@ -1,0 +1,63 @@
+﻿@page "/customers"
+@using ToolRentalSystem.Web.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
+
+<PageTitle>Clientes</PageTitle>
+<h3>Clientes</h3>
+<button class="btn btn-primary mb-3" @onclick="IrACrear">+ Nuevo Cliente</button>
+
+@if (customers == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else if (customers.Count == 0)
+{
+    <p>No hay clientes registrados.</p>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr><th>Id</th><th>Nombre</th><th>Apellido</th><th>Email</th><th>Teléfono</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var c in customers)
+            {
+                <tr>
+                    <td>@c.Id</td>
+                    <td>@c.FirstName</td>
+                    <td>@c.LastName</td>
+                    <td>@c.Email</td>
+                    <td>@c.Phone</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => IrAEditar(c.Id)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Eliminar(c.Id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Customer>? customers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { customers = await Http.GetFromJsonAsync<List<Customer>>("api/Customers"); }
+        catch { customers = new List<Customer>(); }
+    }
+
+    private void IrACrear() => Navigation.NavigateTo("/customers/new");
+    private void IrAEditar(int id) => Navigation.NavigateTo($"/customers/edit/{id}");
+
+    private async Task Eliminar(int id)
+    {
+        bool ok = await JsRuntime.InvokeAsync<bool>("confirm", "¿Eliminar este cliente?");
+        if (!ok) return;
+        var response = await Http.DeleteAsync($"api/Customers/{id}");
+        if (response.IsSuccessStatusCode) customers?.RemoveAll(c => c.Id == id);
+    }
+}
