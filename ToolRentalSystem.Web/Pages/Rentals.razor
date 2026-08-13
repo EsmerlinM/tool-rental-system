@@ -1,0 +1,92 @@
+﻿@page "/rentals"
+@using ToolRentalSystem.Web.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
+
+<PageTitle>Alquileres</PageTitle>
+<h3>Alquileres</h3>
+<button class="btn btn-primary mb-3" @onclick="IrACrear">+ Nuevo Alquiler</button>
+
+@if (rentals == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else if (rentals.Count == 0)
+{
+    <p>No hay alquileres registrados.</p>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr><th>Id</th><th>Cliente</th><th>Herramienta</th><th>Inicio</th><th>Fin</th><th>Devuelto</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var r in rentals)
+            {
+                <tr>
+                    <td>@r.Id</td>
+                    <td>@ObtenerNombreCliente(r.CustomerId)</td>
+                    <td>@ObtenerNombreHerramienta(r.ToolId)</td>
+                    <td>@r.StartDate.ToString("dd/MM/yyyy")</td>
+                    <td>@r.EndDate.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (r.IsReturned)
+                        {
+                            <span class="badge bg-success">Sí</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">No</span>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => IrAEditar(r.Id)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Eliminar(r.Id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Rental>? rentals;
+    private List<Customer> customers = new();
+    private List<Tool> tools = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            rentals = await Http.GetFromJsonAsync<List<Rental>>("api/Rentals");
+            customers = await Http.GetFromJsonAsync<List<Customer>>("api/Customers") ?? new();
+            tools = await Http.GetFromJsonAsync<List<Tool>>("api/Tools") ?? new();
+        }
+        catch { rentals = new List<Rental>(); }
+    }
+
+    private string ObtenerNombreCliente(int id)
+    {
+        var c = customers.FirstOrDefault(x => x.Id == id);
+        return c != null ? $"{c.FirstName} {c.LastName}" : $"Id {id}";
+    }
+
+    private string ObtenerNombreHerramienta(int id)
+    {
+        var t = tools.FirstOrDefault(x => x.Id == id);
+        return t != null ? t.Name : $"Id {id}";
+    }
+
+    private void IrACrear() => Navigation.NavigateTo("/rentals/new");
+    private void IrAEditar(int id) => Navigation.NavigateTo($"/rentals/edit/{id}");
+
+    private async Task Eliminar(int id)
+    {
+        bool ok = await JsRuntime.InvokeAsync<bool>("confirm", "¿Eliminar este alquiler?");
+        if (!ok) return;
+        var response = await Http.DeleteAsync($"api/Rentals/{id}");
+        if (response.IsSuccessStatusCode) rentals?.RemoveAll(r => r.Id == id);
+    }
+}
