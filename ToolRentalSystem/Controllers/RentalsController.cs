@@ -76,6 +76,7 @@ namespace ToolRentalSystem.Controllers
             rental.ToolId = dto.ToolId;
             rental.StartDate = dto.StartDate;
             rental.EndDate = dto.EndDate;
+            rental.IsReturned = dto.IsReturned;
             await _context.SaveChangesAsync();
             return NoContent();
         }

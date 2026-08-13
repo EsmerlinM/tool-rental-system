@@ -1,0 +1,108 @@
+﻿@page "/rentals/new"
+@page "/rentals/edit/{Id:int}"
+@using ToolRentalSystem.Web.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>@(EsEdicion ? "Editar Alquiler" : "Nuevo Alquiler")</PageTitle>
+<h3>@(EsEdicion ? "Editar Alquiler" : "Nuevo Alquiler")</h3>
+
+@if (cargando)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <EditForm Model="rental" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Cliente</label>
+            <InputSelect class="form-select" @bind-Value="rental.CustomerId">
+                <option value="0">-- Selecciona un cliente --</option>
+                @foreach (var c in customers)
+                {
+                    <option value="@c.Id">@c.FirstName @c.LastName</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Herramienta</label>
+            <InputSelect class="form-select" @bind-Value="rental.ToolId">
+                <option value="0">-- Selecciona una herramienta --</option>
+                @foreach (var t in tools)
+                {
+                    <option value="@t.Id">@t.Name</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Fecha inicio</label>
+            <InputDate class="form-control" @bind-Value="rental.StartDate" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Fecha fin</label>
+            <InputDate class="form-control" @bind-Value="rental.EndDate" />
+        </div>
+
+        <div class="mb-3 form-check">
+            <InputCheckbox class="form-check-input" @bind-Value="rental.IsReturned" id="devuelto" />
+            <label class="form-check-label" for="devuelto">Devuelto</label>
+        </div>
+
+        @if (!string.IsNullOrEmpty(mensajeError))
+        {
+            <div class="alert alert-danger">@mensajeError</div>
+        }
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int? Id { get; set; }
+    private Rental rental = new() { StartDate = DateTime.Today, EndDate = DateTime.Today.AddDays(1) };
+    private List<Customer> customers = new();
+    private List<Tool> tools = new();
+    private string? mensajeError;
+    private bool cargando = false;
+    private bool EsEdicion => Id.HasValue;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cargando = true;
+        customers = await Http.GetFromJsonAsync<List<Customer>>("api/Customers") ?? new();
+        tools = await Http.GetFromJsonAsync<List<Tool>>("api/Tools") ?? new();
+
+        if (EsEdicion)
+        {
+            var r = await Http.GetFromJsonAsync<Rental>($"api/Rentals/{Id}");
+            if (r != null) rental = r;
+        }
+        cargando = false;
+    }
+
+    private async Task Guardar()
+    {
+        mensajeError = null;
+        if (rental.CustomerId == 0 || rental.ToolId == 0)
+        {
+            mensajeError = "Selecciona un cliente y una herramienta.";
+            return;
+        }
+
+        var response = EsEdicion
+            ? await Http.PutAsJsonAsync($"api/Rentals/{Id}", rental)
+            : await Http.PostAsJsonAsync("api/Rentals", rental);
+
+        if (response.IsSuccessStatusCode) Navigation.NavigateTo("/rentals");
+        else mensajeError = $"Error al guardar: {response.StatusCode}";
+    }
+
+    private void Cancelar() => Navigation.NavigateTo("/rentals");
+}

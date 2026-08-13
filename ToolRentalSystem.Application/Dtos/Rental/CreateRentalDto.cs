@@ -17,5 +17,6 @@ namespace ToolRentalSystem.Application.Dtos.Rental
 
         [Required(ErrorMessage = "End date is required")]
         public DateTime EndDate { get; set; }
+        public bool IsReturned { get; set; }
     }
 }
