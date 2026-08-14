@@ -56,14 +56,15 @@ namespace ToolRentalSystem.Controllers
             {
                 Name = dto.Name,
                 Description = dto.Description,
-                PricePerDay = dto.PricePerDay
+                PricePerDay = dto.PricePerDay,
+                IsAvailable = dto.IsAvailable
             };
             _context.Tools.Add(tool);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { id = tool.Id }, tool);
         }
 
-        
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, CreateToolDto dto)
         {
@@ -72,11 +73,12 @@ namespace ToolRentalSystem.Controllers
             tool.Name = dto.Name;
             tool.Description = dto.Description;
             tool.PricePerDay = dto.PricePerDay;
+            tool.IsAvailable = dto.IsAvailable;
             await _context.SaveChangesAsync();
             return NoContent();
         }
 
-       
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

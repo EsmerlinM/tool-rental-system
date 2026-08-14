@@ -1,0 +1,62 @@
+﻿@page "/customers/new"
+@page "/customers/edit/{Id:int}"
+@using ToolRentalSystem.Web.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>@(EsEdicion ? "Editar Cliente" : "Nuevo Cliente")</PageTitle>
+<h3>@(EsEdicion ? "Editar Cliente" : "Nuevo Cliente")</h3>
+
+@if (cargando)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <EditForm Model="customer" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3"><label class="form-label">Nombre</label><InputText class="form-control" @bind-Value="customer.FirstName" /></div>
+        <div class="mb-3"><label class="form-label">Apellido</label><InputText class="form-control" @bind-Value="customer.LastName" /></div>
+        <div class="mb-3"><label class="form-label">Email</label><InputText class="form-control" @bind-Value="customer.Email" /></div>
+        <div class="mb-3"><label class="form-label">Teléfono</label><InputText class="form-control" @bind-Value="customer.Phone" /></div>
+        @if (!string.IsNullOrEmpty(mensajeError))
+        {
+            <div class="alert alert-danger">@mensajeError</div>
+        }
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int? Id { get; set; }
+    private Customer customer = new();
+    private string? mensajeError;
+    private bool cargando = false;
+    private bool EsEdicion => Id.HasValue;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (EsEdicion)
+        {
+            cargando = true;
+            var r = await Http.GetFromJsonAsync<Customer>($"api/Customers/{Id}");
+            if (r != null) customer = r;
+            cargando = false;
+        }
+    }
+
+    private async Task Guardar()
+    {
+        mensajeError = null;
+        var response = EsEdicion
+            ? await Http.PutAsJsonAsync($"api/Customers/{Id}", customer)
+            : await Http.PostAsJsonAsync("api/Customers", customer);
+
+        if (response.IsSuccessStatusCode) Navigation.NavigateTo("/customers");
+        else mensajeError = $"Error al guardar: {response.StatusCode}";
+    }
+
+    private void Cancelar() => Navigation.NavigateTo("/customers");
+}

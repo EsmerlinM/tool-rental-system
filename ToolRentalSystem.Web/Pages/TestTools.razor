@@ -1,0 +1,39 @@
+﻿@page "/test-tools"
+@using ToolRentalSystem.Web.Models
+@inject HttpClient Http
+
+<h3>Prueba de conexión - Herramientas</h3>
+
+@if (tools == null)
+{
+    <p>Cargando...</p>
+}
+else if (tools.Count == 0)
+{
+    <p>No se encontraron herramientas (la API respondió pero está vacía).</p>
+}
+else
+{
+    <ul>
+        @foreach (var tool in tools)
+        {
+            <li>@tool.Name - $@tool.PricePerDay/día - Disponible: @tool.IsAvailable</li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Tool>? tools;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            tools = await Http.GetFromJsonAsync<List<Tool>>("api/Tools");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al llamar la API: {ex.Message}");
+        }
+    }
+}

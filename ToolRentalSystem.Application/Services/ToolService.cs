@@ -47,7 +47,8 @@ namespace ToolRentalSystem.Application.Services
             {
                 Name = dto.Name,
                 Description = dto.Description,
-                PricePerDay = dto.PricePerDay
+                PricePerDay = dto.PricePerDay,
+                IsAvailable = dto.IsAvailable
             };
             await _unitOfWork.Tools.AddAsync(tool);
             await _unitOfWork.SaveChangesAsync();
@@ -57,7 +58,8 @@ namespace ToolRentalSystem.Application.Services
                 Name = tool.Name,
                 Description = tool.Description,
                 PricePerDay = tool.PricePerDay,
-                IsAvailable = tool.IsAvailable
+                IsAvailable = tool.IsAvailable,
+
             };
         }
 
@@ -68,6 +70,7 @@ namespace ToolRentalSystem.Application.Services
             tool.Name = dto.Name;
             tool.Description = dto.Description;
             tool.PricePerDay = dto.PricePerDay;
+            tool.IsAvailable = dto.IsAvailable;
             await _unitOfWork.Tools.UpdateAsync(tool);
             await _unitOfWork.SaveChangesAsync();
         }

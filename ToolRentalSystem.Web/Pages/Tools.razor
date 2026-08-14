@@ -1,0 +1,106 @@
+﻿@page "/tools"
+@using ToolRentalSystem.Web.Models
+@inject HttpClient Http
+@inject IJSRuntime JsRuntime
+@inject NavigationManager Navigation
+
+<PageTitle>Herramientas</PageTitle>
+
+<h3>Herramientas</h3>
+
+<button class="btn btn-primary mb-3" @onclick="IrACrear">+ Nueva Herramienta</button>
+
+@if (tools == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else if (tools.Count == 0)
+{
+    <p>No hay herramientas registradas.</p>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio/día</th>
+                <th>Disponible</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tool in tools)
+            {
+                <tr>
+                    <td>@tool.Id</td>
+                    <td>@tool.Name</td>
+                    <td>@tool.Description</td>
+                    <td>@tool.PricePerDay.ToString("C")</td>
+                    <td>
+                        @if (tool.IsAvailable)
+                        {
+                            <span class="badge bg-success">Sí</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">No</span>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => IrAEditar(tool.Id)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => EliminarHerramienta(tool.Id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Tool>? tools;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            tools = await Http.GetFromJsonAsync<List<Tool>>("api/Tools");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar herramientas: {ex.Message}");
+            tools = new List<Tool>();
+        }
+    }
+
+    private async Task EliminarHerramienta(int id)
+    {
+        bool confirmar = await JsRuntime.InvokeAsync<bool>("confirm", "¿Seguro que deseas eliminar esta herramienta?");
+        if (!confirmar)
+        {
+            return;
+        }
+
+        var response = await Http.DeleteAsync($"api/Tools/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            tools?.RemoveAll(t => t.Id == id);
+        }
+        else
+        {
+            Console.WriteLine($"Error al eliminar: {response.StatusCode}");
+        }
+    }
+
+    private void IrACrear()
+    {
+        Navigation.NavigateTo("/tools/new");
+    }
+
+    private void IrAEditar(int id)
+    {
+        Navigation.NavigateTo($"/tools/edit/{id}");
+    }
+}
