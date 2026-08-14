@@ -1,0 +1,95 @@
+﻿@page "/payments/new"
+@page "/payments/edit/{Id:int}"
+@using ToolRentalSystem.Web.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>@(EsEdicion ? "Editar Pago" : "Nuevo Pago")</PageTitle>
+<h3>@(EsEdicion ? "Editar Pago" : "Nuevo Pago")</h3>
+
+@if (cargando)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <EditForm Model="payment" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Alquiler</label>
+            <InputSelect class="form-select" @bind-Value="payment.RentalId">
+                <option value="0">-- Selecciona un alquiler --</option>
+                @foreach (var r in rentals)
+                {
+                    <option value="@r.Id">Alquiler #@r.Id</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Monto</label>
+            <InputNumber class="form-control" @bind-Value="payment.Amount" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Fecha de pago</label>
+            <InputDate class="form-control" @bind-Value="payment.PaymentDate" />
+        </div>
+
+        <div class="mb-3 form-check">
+            <InputCheckbox class="form-check-input" @bind-Value="payment.HasLateFee" id="mora" />
+            <label class="form-check-label" for="mora">Tiene recargo por mora</label>
+        </div>
+
+        @if (!string.IsNullOrEmpty(mensajeError))
+        {
+            <div class="alert alert-danger">@mensajeError</div>
+        }
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int? Id { get; set; }
+    private Payment payment = new() { PaymentDate = DateTime.Today };
+    private List<Rental> rentals = new();
+    private string? mensajeError;
+    private bool cargando = false;
+    private bool EsEdicion => Id.HasValue;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cargando = true;
+        rentals = await Http.GetFromJsonAsync<List<Rental>>("api/Rentals") ?? new();
+
+        if (EsEdicion)
+        {
+            var p = await Http.GetFromJsonAsync<Payment>($"api/Payments/{Id}");
+            if (p != null) payment = p;
+        }
+        cargando = false;
+    }
+
+    private async Task Guardar()
+    {
+        mensajeError = null;
+        if (payment.RentalId == 0)
+        {
+            mensajeError = "Selecciona un alquiler.";
+            return;
+        }
+
+        var response = EsEdicion
+            ? await Http.PutAsJsonAsync($"api/Payments/{Id}", payment)
+            : await Http.PostAsJsonAsync("api/Payments", payment);
+
+        if (response.IsSuccessStatusCode) Navigation.NavigateTo("/payments");
+        else mensajeError = $"Error al guardar: {response.StatusCode}";
+    }
+
+    private void Cancelar() => Navigation.NavigateTo("/payments");
+}
