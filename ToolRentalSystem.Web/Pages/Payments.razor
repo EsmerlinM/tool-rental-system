@@ -6,7 +6,9 @@
 
 <PageTitle>Pagos</PageTitle>
 <h3>Pagos</h3>
-<button class="btn btn-primary mb-3" @onclick="IrACrear">+ Nuevo Pago</button>
+<button class="btn btn-primary mb-3" @onclick="IrACrear">
+    <i class="bi bi-plus-lg"></i> Nuevo Pago
+</button>
 
 @if (payments == null)
 {
@@ -41,8 +43,12 @@ else
                         }
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-warning me-1" @onclick="() => IrAEditar(p.Id)">Editar</button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => Eliminar(p.Id)">Eliminar</button>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => IrAEditar(p.Id)">
+                            <i class="bi bi-pencil-square"></i> Editar
+                        </button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => PedirConfirmacion(p.Id)">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
                     </td>
                 </tr>
             }
@@ -50,8 +56,12 @@ else
     </table>
 }
 
+<ConfirmModal @ref="modal" Titulo="Eliminar pago" Mensaje="@mensajeModal" />
+
 @code {
     private List<Payment>? payments;
+    private ConfirmModal? modal;
+    private string mensajeModal = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,11 +72,16 @@ else
     private void IrACrear() => Navigation.NavigateTo("/payments/new");
     private void IrAEditar(int id) => Navigation.NavigateTo($"/payments/edit/{id}");
 
+    private void PedirConfirmacion(int id)
+    {
+        mensajeModal = $"¿Seguro que deseas eliminar el pago #{id}?";
+        modal?.Mostrar(() => Eliminar(id));
+    }
+
     private async Task Eliminar(int id)
     {
-        bool ok = await JsRuntime.InvokeAsync<bool>("confirm", "¿Eliminar este pago?");
-        if (!ok) return;
         var response = await Http.DeleteAsync($"api/Payments/{id}");
         if (response.IsSuccessStatusCode) payments?.RemoveAll(p => p.Id == id);
+        StateHasChanged();
     }
 }
