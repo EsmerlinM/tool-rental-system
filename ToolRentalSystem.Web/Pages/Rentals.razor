@@ -6,7 +6,9 @@
 
 <PageTitle>Alquileres</PageTitle>
 <h3>Alquileres</h3>
-<button class="btn btn-primary mb-3" @onclick="IrACrear">+ Nuevo Alquiler</button>
+<button class="btn btn-primary mb-3" @onclick="IrACrear">
+    <i class="bi bi-plus-lg"></i> Nuevo Alquiler
+</button>
 
 @if (rentals == null)
 {
@@ -42,8 +44,12 @@ else
                         }
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-warning me-1" @onclick="() => IrAEditar(r.Id)">Editar</button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => Eliminar(r.Id)">Eliminar</button>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => IrAEditar(r.Id)">
+                            <i class="bi bi-pencil-square"></i> Editar
+                        </button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => PedirConfirmacion(r.Id)">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
                     </td>
                 </tr>
             }
@@ -51,10 +57,14 @@ else
     </table>
 }
 
+<ConfirmModal @ref="modal" Titulo="Eliminar alquiler" Mensaje="@mensajeModal" />
+
 @code {
     private List<Rental>? rentals;
     private List<Customer> customers = new();
     private List<Tool> tools = new();
+    private ConfirmModal? modal;
+    private string mensajeModal = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,11 +92,16 @@ else
     private void IrACrear() => Navigation.NavigateTo("/rentals/new");
     private void IrAEditar(int id) => Navigation.NavigateTo($"/rentals/edit/{id}");
 
+    private void PedirConfirmacion(int id)
+    {
+        mensajeModal = $"¿Seguro que deseas eliminar el alquiler #{id}?";
+        modal?.Mostrar(() => Eliminar(id));
+    }
+
     private async Task Eliminar(int id)
     {
-        bool ok = await JsRuntime.InvokeAsync<bool>("confirm", "¿Eliminar este alquiler?");
-        if (!ok) return;
         var response = await Http.DeleteAsync($"api/Rentals/{id}");
         if (response.IsSuccessStatusCode) rentals?.RemoveAll(r => r.Id == id);
+        StateHasChanged();
     }
 }

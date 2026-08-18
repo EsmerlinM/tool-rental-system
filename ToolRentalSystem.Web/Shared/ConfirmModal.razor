@@ -1,0 +1,44 @@
+﻿@if (mostrar)
+{
+    <div class="modal-backdrop-custom">
+        <div class="modal-box">
+            <h5>@Titulo</h5>
+            <p>@Mensaje</p>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <button class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+                <button class="btn btn-danger" @onclick="Confirmar">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool mostrar = false;
+    private Func<Task>? accionConfirmar;
+
+    [Parameter] public string Titulo { get; set; } = "Confirmar";
+    [Parameter] public string Mensaje { get; set; } = "¿Estás seguro?";
+
+    public void Mostrar(Func<Task> accion)
+    {
+        accionConfirmar = accion;
+        mostrar = true;
+        StateHasChanged();
+    }
+
+    private async Task Confirmar()
+    {
+        mostrar = false;
+        if (accionConfirmar != null)
+        {
+            await accionConfirmar();
+        }
+    }
+
+    private void Cancelar()
+    {
+        mostrar = false;
+    }
+}
