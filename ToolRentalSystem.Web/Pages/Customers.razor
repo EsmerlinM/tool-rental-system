@@ -6,9 +6,7 @@
 
 <PageTitle>Clientes</PageTitle>
 <h3>Clientes</h3>
-<button class="btn btn-primary mb-3" @onclick="IrACrear">
-    <i class="bi bi-plus-lg"></i> Nuevo Cliente
-</button>
+<button class="btn btn-primary mb-3" @onclick="IrACrear">+ Nuevo Cliente</button>
 
 @if (customers == null)
 {
@@ -34,12 +32,8 @@ else
                     <td>@c.Email</td>
                     <td>@c.Phone</td>
                     <td>
-                        <button class="btn btn-sm btn-warning me-1" @onclick="() => IrAEditar(c.Id)">
-                            <i class="bi bi-pencil-square"></i> Editar
-                        </button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => PedirConfirmacion(c)">
-                            <i class="bi bi-trash"></i> Eliminar
-                        </button>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => IrAEditar(c.Id)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Eliminar(c.Id)">Eliminar</button>
                     </td>
                 </tr>
             }
@@ -47,12 +41,8 @@ else
     </table>
 }
 
-<ConfirmModal @ref="modal" Titulo="Eliminar cliente" Mensaje="@mensajeModal" />
-
 @code {
     private List<Customer>? customers;
-    private ConfirmModal? modal;
-    private string mensajeModal = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,16 +53,11 @@ else
     private void IrACrear() => Navigation.NavigateTo("/customers/new");
     private void IrAEditar(int id) => Navigation.NavigateTo($"/customers/edit/{id}");
 
-    private void PedirConfirmacion(Customer c)
-    {
-        mensajeModal = $"¿Seguro que deseas eliminar a \"{c.FirstName} {c.LastName}\"?";
-        modal?.Mostrar(() => Eliminar(c.Id));
-    }
-
     private async Task Eliminar(int id)
     {
+        bool ok = await JsRuntime.InvokeAsync<bool>("confirm", "¿Eliminar este cliente?");
+        if (!ok) return;
         var response = await Http.DeleteAsync($"api/Customers/{id}");
         if (response.IsSuccessStatusCode) customers?.RemoveAll(c => c.Id == id);
-        StateHasChanged();
     }
 }
