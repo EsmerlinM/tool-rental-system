@@ -8,9 +8,7 @@
 
 <h3>Herramientas</h3>
 
-<button class="btn btn-primary mb-3" @onclick="IrACrear">
-    <i class="bi bi-plus-lg"></i> Nueva Herramienta
-</button>
+<button class="btn btn-primary mb-3" @onclick="IrACrear">+ Nueva Herramienta</button>
 
 @if (tools == null)
 {
@@ -52,27 +50,17 @@ else
                         }
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-warning me-1" @onclick="() => IrAEditar(tool.Id)">
-                            <i class="bi bi-pencil-square"></i> Editar
-                        </button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => PedirConfirmacion(tool.Id, tool.Name)">
-                            <i class="bi bi-trash"></i> Eliminar
-                        </button>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => IrAEditar(tool.Id)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => EliminarHerramienta(tool.Id)">Eliminar</button>
                     </td>
                 </tr>
-
             }
         </tbody>
     </table>
-
 }
 
-
-<ConfirmModal @ref="modal" Titulo="Eliminar herramienta" Mensaje="@mensajeModal" />
 @code {
     private List<Tool>? tools;
-    private ConfirmModal? modal;
-    private string mensajeModal = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,18 +72,17 @@ else
         {
             Console.WriteLine($"Error al cargar herramientas: {ex.Message}");
             tools = new List<Tool>();
-
         }
-    }
-
-    private void PedirConfirmacion(int id, string nombre)
-    {
-        mensajeModal = $"¿Seguro que deseas eliminar \"{nombre}\"?";
-        modal?.Mostrar(() => EliminarHerramienta(id));
     }
 
     private async Task EliminarHerramienta(int id)
     {
+        bool confirmar = await JsRuntime.InvokeAsync<bool>("confirm", "¿Seguro que deseas eliminar esta herramienta?");
+        if (!confirmar)
+        {
+            return;
+        }
+
         var response = await Http.DeleteAsync($"api/Tools/{id}");
         if (response.IsSuccessStatusCode)
         {
@@ -105,7 +92,6 @@ else
         {
             Console.WriteLine($"Error al eliminar: {response.StatusCode}");
         }
-        StateHasChanged();
     }
 
     private void IrACrear()
