@@ -1,3 +1,37 @@
+:root {
+    --color-primary: #6b21a8;
+    --color-primary-hover: #581c87;
+    --color-dark: #1e1e2f;
+    --color-bg: #f8f7fa;
+}
+
+body {
+    font-family: "Times New Roman", Times, serif;
+    background-color: var(--color-bg);
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: "Times New Roman", Times, serif;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+    .btn-primary:hover {
+        background-color: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+    }
+
+.table-hover tbody tr:hover {
+    background-color: #f3e8ff;
+}
+
+a {
+    color: var(--color-primary);
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
